@@ -1,6 +1,7 @@
 package match
 
 import (
+	"regexp"
 	"sort"
 	"strings"
 	"unicode/utf8"
@@ -16,6 +17,8 @@ const (
 	CmpStringCaseInsensitive        // 不分大小写
 	CmpStringEqual                  // 相等
 )
+
+var reDigit = regexp.MustCompile(`^\d+$`)
 
 // StringMatch 比较是否相符
 func StringMatch(a, b string, cmp int) bool {
@@ -75,6 +78,11 @@ func IsSubsetList(lst1, lst2 []string, strict bool) bool {
 		}
 	}
 	return true
+}
+
+// IsDigit 是否纯数字
+func IsDigit(s string) bool {
+	return reDigit.MatchString(s)
 }
 
 // RemoveSpaces 删除所有空白，包括中间的

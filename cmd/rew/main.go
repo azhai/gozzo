@@ -8,7 +8,7 @@ import (
 
 	"github.com/azhai/gozzo/filesystem"
 	"github.com/azhai/gozzo/rewrite"
-	"github.com/klauspost/cpuid/v2"
+	. "github.com/klauspost/cpuid/v2"
 )
 
 var (
@@ -18,11 +18,11 @@ var (
 
 func init() {
 	// 压舱石，阻止频繁GC
-	ballast := make([]byte, 256*MegaByte)
+	ballast := make([]byte, 20*MegaByte)
 	runtime.KeepAlive(ballast)
 
 	if level := os.Getenv("GOAMD64"); level == "" {
-		level = fmt.Sprintf("v%d", cpuid.CPU.X64Level())
+		level = fmt.Sprintf("v%d", CPU.X64Level())
 		fmt.Printf("请设置环境变量 export GOAMD64=%s\n\n", level)
 	}
 
@@ -46,8 +46,18 @@ func prettifyDir(dir string) {
 	if err != nil {
 		panic(err)
 	}
+	var chg bool
 	for filename := range files {
-		fmt.Println("-", filename)
-		rewrite.PrettifyGolangFile(filename, true)
+		chg, err = rewrite.PrettifyGolangFile(filename, true)
+		if verbose {
+			if chg {
+				fmt.Println("*", filename)
+			} else {
+				fmt.Println("|", filename)
+			}
+		}
+		if err != nil {
+			fmt.Println(err)
+		}
 	}
 }

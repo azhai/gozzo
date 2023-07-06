@@ -10,6 +10,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/azhai/gozzo/match"
 	"golang.org/x/tools/go/ast/astutil"
 )
 
@@ -129,6 +130,17 @@ func (cs *CodeSource) CleanImports() (removes int) {
 				alias = imp.Name.Name
 			}
 			path = strings.Trim(imp.Path.Value, "\"")
+			if alias != "" || !strings.Contains(path, "/v") {
+				continue
+			}
+			idx := strings.LastIndex(path, "/v")
+			if match.IsDigit(path[idx+2:]) { // astutil对带版本号的path判断失误
+				// fmt.Println(path, ":", alias)
+				// fmt.Println(path, " -> ", astutil.UsesImport(cs.Fileast, path))
+				// fmt.Println(path[:idx], " -> ", astutil.UsesImport(cs.Fileast, path[:idx]))
+				// fmt.Println("===============================")
+				continue
+			}
 			if cs.DelImport(path, alias) {
 				removes++
 			}
