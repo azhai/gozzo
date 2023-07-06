@@ -11,6 +11,7 @@ import (
 
 // LogLevels 日志等级
 var LogLevels = map[string]zapcore.Level{
+	"trace":     zapcore.DebugLevel, // zap中无trace等级
 	"debug":     zapcore.DebugLevel,
 	"info":      zapcore.InfoLevel,
 	"notice":    zapcore.InfoLevel, // zap中无notice等级
@@ -21,14 +22,15 @@ var LogLevels = map[string]zapcore.Level{
 	"dpanic":    zapcore.DPanicLevel, // Develop环境会panic
 	"panic":     zapcore.PanicLevel,  // 都会panic
 	"fatal":     zapcore.FatalLevel,
-	"critical":  zapcore.FatalLevel, // zap中无critical等级
-	"emergency": zapcore.FatalLevel, // zap中无emergency等级
+	"critical":  zapcore.FatalLevel,   // zap中无critical等级
+	"emergency": zapcore.FatalLevel,   // zap中无emergency等级
+	"invalid":   zapcore.InvalidLevel, // 表示不记录日志，即silent等级
 }
 
 func init() {
 	// 注册rotate文件
 	zap.RegisterSink("rotate", func(url *url.URL) (sink zap.Sink, err error) {
-		var decoder = form.NewDecoder()
+		decoder := form.NewDecoder()
 		sink = &RotateFile{Filename: url.Path, LocalTime: true, Compress: true}
 		err = decoder.Decode(&sink, url.Query())
 		return

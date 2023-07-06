@@ -27,7 +27,7 @@ func FileSize(path string) (int64, bool) {
 	if err != nil && os.IsNotExist(err) {
 		return 0, false
 	}
-	var size = int64(-1)
+	size := int64(-1)
 	if info.IsDir() == false {
 		size = info.Size()
 	}

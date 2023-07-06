@@ -9,9 +9,7 @@ import (
 	"github.com/azhai/gozzo/rewrite"
 )
 
-var (
-	verbose bool
-)
+var verbose bool
 
 func init() {
 	cmd.PrepareEnv(20)

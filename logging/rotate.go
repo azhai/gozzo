@@ -238,11 +238,11 @@ func (l *RotateFile) check(writeLen, maxSize int64) bool {
 // openNew opens a new log file for writing, moving any old log file out of the
 // way.  This methods assumes the file has already been closed.
 func (l *RotateFile) openNew() error {
-	if err := os.MkdirAll(l.dir(), 0755); err != nil {
+	if err := os.MkdirAll(l.dir(), 0o755); err != nil {
 		return fmt.Errorf("can't make directories for new logfile: %s", err)
 	}
 
-	name, mode := l.filename(), os.FileMode(0600)
+	name, mode := l.filename(), os.FileMode(0o600)
 	info, err := osStat(name)
 	if err == nil {
 		var last time.Time
@@ -292,7 +292,7 @@ func (l *RotateFile) openExistingOrNew(writeLen, maxSize int64) error {
 		return fmt.Errorf("error getting log file info: %s", err)
 	}
 
-	file, err := os.OpenFile(filename, os.O_APPEND|os.O_WRONLY, 0644)
+	file, err := os.OpenFile(filename, os.O_APPEND|os.O_WRONLY, 0o644)
 	if err != nil {
 		// if we fail to open the old log file for some reason, just ignore
 		// it and open a new log file.

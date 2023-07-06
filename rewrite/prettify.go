@@ -50,7 +50,8 @@ func PrettifyGolangFile(filename string, cleanImports bool) (changed bool, err e
 
 // writeGolangFile 将代码整理后写入文件
 func writeGolangFile(filename string, codeText []byte,
-	cleanImports bool) (srcCode []byte, err error) {
+	cleanImports bool,
+) (srcCode []byte, err error) {
 	// Formart/Prettify the code 格式化代码
 	if srcCode, err = FormatGolangCode(codeText); err != nil {
 		srcCode = codeText
@@ -121,7 +122,8 @@ func WritePackage(pkgPath, pkgName string) error {
 
 // WriteWithImports 注入导入声明
 func WriteWithImports(pkg string, source []byte,
-	imports map[string]string) (*CodeSource, error) {
+	imports map[string]string,
+) (*CodeSource, error) {
 	cs := NewCodeSource()
 	if err := cs.SetPackage(pkg); err != nil {
 		return cs, err
