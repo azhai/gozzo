@@ -9,6 +9,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	go.uber.org/zap v1.24.0
 	golang.org/x/tools v0.11.0
+	xorm.io/xorm v1.3.2
 )
 
 require (

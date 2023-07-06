@@ -8,8 +8,8 @@ import (
 )
 
 var (
-	cfg    = logging.SingleFileConfig("info", "access.log")
-	logger = logging.NewLogger(cfg, "rotate://../logs/%s?min=1&comp=0")
+	sinkURL = "rotate://../logs/access.log?min=1&comp=0"
+	logger  = logging.NewLoggerURL("info", sinkURL)
 )
 
 func NowTime() string {

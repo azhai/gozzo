@@ -3,30 +3,21 @@ package main
 import (
 	"flag"
 	"fmt"
-	"os"
-	"runtime"
 
+	"github.com/azhai/gozzo/cmd"
 	"github.com/azhai/gozzo/filesystem"
 	"github.com/azhai/gozzo/rewrite"
-	. "github.com/klauspost/cpuid/v2"
 )
 
 var (
-	MegaByte = 1024 * 1024
-	verbose  bool
+	verbose bool
 )
 
 func init() {
-	// 压舱石，阻止频繁GC
-	ballast := make([]byte, 20*MegaByte)
-	runtime.KeepAlive(ballast)
+	cmd.PrepareEnv(20)
 
-	if level := os.Getenv("GOAMD64"); level == "" {
-		level = fmt.Sprintf("v%d", CPU.X64Level())
-		fmt.Printf("请设置环境变量 export GOAMD64=%s\n\n", level)
-	}
-
-	flag.BoolVar(&verbose, "v", false, "是否输出详情")
+	flag.BoolVar(&verbose, "v", false, "display more information")
+	flag.Usage = usage
 	flag.Parse()
 }
 
@@ -38,6 +29,16 @@ func main() {
 	for _, dir := range flag.Args() {
 		prettifyDir(dir)
 	}
+}
+
+// usage 使用帮助
+func usage() {
+	out := flag.CommandLine.Output()
+	desc := `Version: v%s
+Usage: rew [flags] [dir ...]
+`
+	fmt.Fprintf(out, desc, cmd.Version)
+	flag.PrintDefaults()
 }
 
 // prettifyDir 美化目录下的go代码文件

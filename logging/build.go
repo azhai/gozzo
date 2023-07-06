@@ -26,8 +26,21 @@ type LogConfig struct {
 	Outputs    []Output
 }
 
-// NewLogger 根据配置产生记录器
-func NewLogger(cfg *LogConfig, dir string) *zap.SugaredLogger {
+// NewLogger 指定日志目录，普通和错误日志分文件存放
+func NewLogger(dir string) *zap.SugaredLogger {
+	return NewLoggerCustom(DefaultConfig(), dir)
+}
+
+// NewLoggerURL 单路径日志，指定日志级别和路径
+func NewLoggerURL(level, url string) *zap.SugaredLogger {
+	if strings.Contains(url, "$FILE") {
+		return NewLoggerCustom(SingleFileConfig(level, ""), url)
+	}
+	return NewLoggerCustom(SingleFileConfig(level, url), "")
+}
+
+// NewLoggerCustom 根据配置产生记录器
+func NewLoggerCustom(cfg *LogConfig, dir string) *zap.SugaredLogger {
 	zl, err := cfg.BuildLogger(dir)
 	if err == nil {
 		return zl.Sugar()
@@ -35,20 +48,8 @@ func NewLogger(cfg *LogConfig, dir string) *zap.SugaredLogger {
 	panic(err)
 }
 
-// SingleFileConfig 使用单个文件的记录器
-func SingleFileConfig(level, file string) *LogConfig {
-	cfg := NewDefaultConfig()
-	cfg.MinLevel = level
-	if file != "" {
-		cfg.Outputs = []Output{
-			{Start: level, Stop: "fatal", OutPaths: []string{file}},
-		}
-	}
-	return cfg
-}
-
-// NewDefaultConfig 默认配置，使用两个文件分别记录警告和错误
-func NewDefaultConfig() *LogConfig {
+// DefaultConfig 默认配置，使用两个文件分别记录警告和错误
+func DefaultConfig() *LogConfig {
 	return &LogConfig{
 		Config: zap.Config{
 			Encoding:         "console",
@@ -63,6 +64,16 @@ func NewDefaultConfig() *LogConfig {
 			{Start: "warn", Stop: "fatal", OutPaths: []string{"error.log"}},
 		},
 	}
+}
+
+// SingleFileConfig 使用单个文件的记录器
+func SingleFileConfig(level, file string) *LogConfig {
+	cfg := DefaultConfig()
+	cfg.MinLevel = level
+	cfg.Outputs = []Output{
+		{Start: level, Stop: "fatal", OutPaths: []string{file}},
+	}
+	return cfg
 }
 
 // BuildLogger 生成日志记录器
@@ -103,8 +114,8 @@ func (c *LogConfig) GetCores(dir string) []zapcore.Core {
 	)
 	enc := c.GetEncoder()
 	for _, out := range c.Outputs {
-		enab := GetLevelEnabler(out.Start, out.Stop, c.MinLevel)
-		if enab == nil || len(out.OutPaths) == 0 {
+		enabler := GetLevelEnabler(out.Start, out.Stop, c.MinLevel)
+		if enabler == nil || len(out.OutPaths) == 0 {
 			continue
 		}
 		c.OutputPaths = GetLogPath(dir, out.OutPaths)
@@ -113,7 +124,7 @@ func (c *LogConfig) GetCores(dir string) []zapcore.Core {
 		} else if ws, _, err = zap.Open(c.OutputPaths...); err != nil {
 			continue
 		}
-		cores = append(cores, zapcore.NewCore(enc, ws, enab))
+		cores = append(cores, zapcore.NewCore(enc, ws, enabler))
 	}
 	return cores
 }
@@ -145,8 +156,8 @@ func GetLogPath(dir string, files []string) []string {
 			files[i] = file
 			continue
 		}
-		if strings.Contains(dir, "%s") {
-			file = fmt.Sprintf(dir, file)
+		if strings.Contains(dir, "$FILE") {
+			file = strings.Replace(dir, "$FILE", file, 1)
 		} else if dir != "" {
 			file = filepath.Join(dir, file)
 		}
