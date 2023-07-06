@@ -63,9 +63,17 @@ type GormLogger struct {
 
 // NewLogger 创建日志
 func NewLogger(filename string) *GormLogger {
-	gl := &GormLogger{LogLevel: logger.Info, SlowThreshold: 200 * time.Millisecond}
-	gl.SugaredLogger = logging.NewLoggerURL("info", filename)
-	return gl
+	l := logging.NewLoggerURL("info", filename)
+	return WrapLogger(l)
+}
+
+// WrapLogger 封装日志
+func WrapLogger(l *zap.SugaredLogger) *GormLogger {
+	if l == nil {
+		l = zap.NewNop().Sugar()
+	}
+	s := 200 * time.Millisecond
+	return &GormLogger{LogLevel: logger.Info, SlowThreshold: s, SugaredLogger: l}
 }
 
 // LogMode log mode
@@ -76,7 +84,7 @@ func (l *GormLogger) LogMode(level logger.LogLevel) logger.Interface {
 }
 
 // Info print info
-func (l *GormLogger) Info(ctx context.Context, msg string, data ...any) {
+func (l *GormLogger) Info(_ context.Context, msg string, data ...any) {
 	if l.LogLevel >= logger.Info {
 		preStr := fmt.Sprintf(infoStr, FileWithLineNum())
 		l.SugaredLogger.Infof(preStr+msg, data...)
@@ -84,7 +92,7 @@ func (l *GormLogger) Info(ctx context.Context, msg string, data ...any) {
 }
 
 // Warn print warn messages
-func (l *GormLogger) Warn(ctx context.Context, msg string, data ...any) {
+func (l *GormLogger) Warn(_ context.Context, msg string, data ...any) {
 	if l.LogLevel >= logger.Warn {
 		preStr := fmt.Sprintf(warnStr, FileWithLineNum())
 		l.SugaredLogger.Warnf(preStr+msg, data...)
@@ -92,7 +100,7 @@ func (l *GormLogger) Warn(ctx context.Context, msg string, data ...any) {
 }
 
 // Error print error messages
-func (l *GormLogger) Error(ctx context.Context, msg string, data ...any) {
+func (l *GormLogger) Error(_ context.Context, msg string, data ...any) {
 	if l.LogLevel >= logger.Error {
 		preStr := fmt.Sprintf(errStr, FileWithLineNum())
 		l.SugaredLogger.Errorf(preStr+msg, data...)
@@ -100,7 +108,7 @@ func (l *GormLogger) Error(ctx context.Context, msg string, data ...any) {
 }
 
 // Trace print sql message
-func (l *GormLogger) Trace(ctx context.Context, begin time.Time, fc func() (string, int64), err error) {
+func (l *GormLogger) Trace(_ context.Context, begin time.Time, fc func() (string, int64), err error) {
 	if l.LogLevel <= logger.Silent {
 		return
 	}

@@ -17,9 +17,16 @@ type XormLogger struct {
 
 // NewLogger 创建日志
 func NewLogger(filename string) *XormLogger {
-	xl := &XormLogger{level: log.LOG_INFO, showSQL: true}
-	xl.SugaredLogger = logging.NewLoggerURL("info", filename)
-	return xl
+	l := logging.NewLoggerURL("info", filename)
+	return WrapLogger(l)
+}
+
+// WrapLogger 封装日志
+func WrapLogger(l *zap.SugaredLogger) *XormLogger {
+	if l == nil {
+		l = zap.NewNop().Sugar()
+	}
+	return &XormLogger{level: log.LOG_INFO, showSQL: true, SugaredLogger: l}
 }
 
 // AfterSQL implements ContextLogger
