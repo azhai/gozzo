@@ -4,7 +4,6 @@ import (
 	"regexp"
 	"sort"
 	"strings"
-	"unicode/utf8"
 )
 
 // 字符串比较方式
@@ -19,6 +18,11 @@ const (
 )
 
 var reDigit = regexp.MustCompile(`^\d+$`)
+
+// IsDigit 是否纯数字
+func IsDigit(s string) bool {
+	return reDigit.MatchString(s)
+}
 
 // StringMatch 比较是否相符
 func StringMatch(a, b string, cmp int) bool {
@@ -78,49 +82,4 @@ func IsSubsetList(lst1, lst2 []string, strict bool) bool {
 		}
 	}
 	return true
-}
-
-// IsDigit 是否纯数字
-func IsDigit(s string) bool {
-	return reDigit.MatchString(s)
-}
-
-// RemoveSpaces 删除所有空白，包括中间的
-func RemoveSpaces(s string) string {
-	subs := map[string]string{
-		" ": "", "\n": "", "\r": "", "\t": "", "\v": "", "\f": "",
-	}
-	return ReplaceWith(s, subs)
-}
-
-// ReduceSpaces 将多个连续空白缩减为一个空格
-func ReduceSpaces(s string) string {
-	return strings.Join(strings.Fields(s), " ")
-}
-
-// ReplaceWith 一一对应进行替换，次序不定（因为map的关系）
-func ReplaceWith(s string, subs map[string]string) string {
-	if s == "" {
-		return ""
-	}
-	var marks []string
-	for key, value := range subs {
-		marks = append(marks, key, value)
-	}
-	replacer := strings.NewReplacer(marks...)
-	return replacer.Replace(s)
-}
-
-// TruncateText 截断长文本
-func TruncateText(msg string, size int) string {
-	if size <= 3 || len(msg) <= size {
-		return msg
-	}
-	// 可能含有中文，要以rune计算结尾
-	for i := size - 3; i >= 0; i-- {
-		if utf8.RuneStart(msg[i]) {
-			return msg[:i] + "..."
-		}
-	}
-	return "..."
 }
