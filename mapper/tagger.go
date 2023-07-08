@@ -12,21 +12,10 @@ import (
 // TagKeySep tag分隔符，约定大于配置
 const TagKeySep = "/"
 
-// GetStructTags Read all tags in a object
-func GetStructTags(v interface{}) map[string]reflect.StructTag {
-	tags := make(map[string]reflect.StructTag)
-	vt := GetIndirectType(v)
-	for i := 0; i < vt.NumField(); i++ {
-		field := vt.Field(i)
-		tags[field.Name] = field.Tag
-	}
-	return tags
-}
-
 // Tagger Yet another StructTag
 type Tagger struct {
-	alias   map[string]string
-	data    map[string]string
+	alias   map[string]string // 例如{"db":"json", "yaml":"json"}
+	data    map[string]string // 例如{"json":"port,omitempty"}
 	changed bool
 	lock    sync.RWMutex
 	reflect.StructTag
@@ -90,13 +79,13 @@ func (t *Tagger) String() string {
 	}
 	var data []byte
 	if len(t.alias) > len(t.data) {
-		for _, key := range SortedKeys(t.alias) {
+		for _, key := range SortedMapKeys(t.alias) {
 			if value := t.Get(key); value != "" {
 				data = t.Build(data, key, value)
 			}
 		}
 	} else {
-		for _, name := range SortedKeys(t.data) {
+		for _, name := range SortedMapKeys(t.data) {
 			data = t.Build(data, name, t.data[name])
 		}
 	}

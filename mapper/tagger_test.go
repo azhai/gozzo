@@ -18,7 +18,7 @@ type ConnParams struct {
 }
 
 // go test -run=Burnish
-func Test_01_Itag_Burnish(t *testing.T) {
+func Test_01_Tag_Burnish(t *testing.T) {
 	tagDict := mapper.GetStructTags(ConnParams{})
 	tag := mapper.BurnishTag(tagDict["Port"], "json", "toml", "yaml")
 	assert.Equal(t, "port,omitempty", tag.Get("yaml"))
@@ -26,7 +26,7 @@ func Test_01_Itag_Burnish(t *testing.T) {
 }
 
 // go test -run=Parse
-func Test_02_Itag_Parse(t *testing.T) {
+func Test_02_Tag_Parse(t *testing.T) {
 	tagDict := mapper.GetStructTags(ConnParams{})
 	tag := mapper.ParseTag(tagDict["Username"])
 	assert.Equal(t, "username,omitempty", tag.Get("yaml"))
