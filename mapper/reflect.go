@@ -5,13 +5,25 @@ import (
 	"sort"
 )
 
+// ExtractType gets the actual underlying type of field value.
+func ExtractType(v reflect.Value) (reflect.Value, reflect.Kind) {
+	kind := v.Kind()
+	if kind != reflect.Pointer && kind != reflect.Interface {
+		return v, kind
+	}
+	if v.IsNil() {
+		return v, kind
+	}
+	return ExtractType(v.Elem())
+}
+
 // GetIndirectType 获取对象（指针）的实际类型
 func GetIndirectType(v any) (rt reflect.Type) {
 	var ok bool
 	if rt, ok = v.(reflect.Type); !ok {
 		rt = reflect.TypeOf(v)
 	}
-	if rt.Kind() == reflect.Ptr {
+	if rt.Kind() == reflect.Pointer {
 		rt = rt.Elem()
 	}
 	return
@@ -24,7 +36,7 @@ func GetFinalType(v any) (rt reflect.Type) {
 		switch rt.Kind() {
 		default:
 			return rt
-		case reflect.Ptr, reflect.Chan:
+		case reflect.Pointer, reflect.Chan:
 			rt = rt.Elem()
 		case reflect.Array, reflect.Slice:
 			rt = rt.Elem()

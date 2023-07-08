@@ -1,13 +1,13 @@
 package mapper
 
 import (
-	"fmt"
 	"reflect"
 	"strings"
 )
 
 // GetColumnChanges 只保留匹配字段标签的数据
-func GetColumnChanges(cols []string, changes map[string]any) map[string]any {
+func GetColumnChanges(cols []string, changes map[string]any,
+) map[string]any {
 	result := make(map[string]any)
 	for _, c := range cols {
 		if val, ok := changes[c]; ok {
@@ -61,21 +61,22 @@ func (t *StructBuilder) GetFieldTag(name, key string) string {
 	return ""
 }
 
-// GetColumnTags 读取结构体的字段标签
-func (t *StructBuilder) GetColumnTags(cols []string, key string, alias ...string) []string {
+// GetTagOpts 读取结构体的字段标签
+func (t *StructBuilder) GetTagOpts(key string, cols []string, opts []*TagOpt,
+) ([]string, []*TagOpt) {
 	for name, tag := range t.tags {
 		tagVal := tag.Get(key)
-		if tagVal == "" || tagVal == "-" {
+		if tagVal == "-" {
 			continue
-		} else if strings.HasSuffix(tagVal, "inline") {
+		} else if strings.HasSuffix(tagVal, "inline") ||
+			strings.HasSuffix(tagVal, "extends") {
 			sub := NewStructBuilder(t.FieldTypes[name])
-			cols = sub.GetColumnTags(cols, key, alias...)
+			cols, opts = sub.GetTagOpts(key, cols, opts)
 		} else {
-			if len(alias) > 0 {
-				tagVal = fmt.Sprintf("%s.%s", alias[0], tagVal)
-			}
-			cols = append(cols, tagVal)
+			opt := NewTagOpt(name, tagVal)
+			opts = append(opts, opt)
+			cols = append(cols, opt.Name)
 		}
 	}
-	return cols
+	return cols, opts
 }
