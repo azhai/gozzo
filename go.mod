@@ -3,7 +3,7 @@ module github.com/azhai/gozzo
 go 1.20
 
 require (
-	github.com/go-playground/form/v4 v4.2.0
+	github.com/go-playground/form/v4 v4.2.1
 	github.com/gobwas/glob v0.2.3
 	github.com/klauspost/cpuid/v2 v2.2.5
 	github.com/muyo/sno v1.2.1

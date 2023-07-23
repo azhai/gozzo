@@ -17,17 +17,6 @@ func GetColumnChanges(cols []string, changes map[string]any,
 	return result
 }
 
-// GetStructTags Read all tags in a object
-func GetStructTags(v any) map[string]reflect.StructTag {
-	tags := make(map[string]reflect.StructTag)
-	vt := GetIndirectType(v)
-	for i := 0; i < vt.NumField(); i++ {
-		field := vt.Field(i)
-		tags[field.Name] = field.Tag
-	}
-	return tags
-}
-
 // StructBuilder 已经解析的标签
 type StructBuilder struct {
 	FieldNames []string
