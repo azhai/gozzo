@@ -4,6 +4,7 @@ import "strings"
 
 // TagOpt 标签选项
 type TagOpt struct {
+	FieldName string
 	Name      string
 	Convert   string
 	OmitEmpty bool
@@ -16,7 +17,7 @@ func NewTagOpt(name, tag string) *TagOpt {
 	if tag == "-" || tag == "" && name == "" {
 		return nil
 	}
-	opt := &TagOpt{Name: name}
+	opt := &TagOpt{FieldName: name, Name: name}
 	if tag == "" {
 		return opt
 	} else if tag == "extends" {

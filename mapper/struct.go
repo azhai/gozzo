@@ -17,50 +17,64 @@ func GetColumnChanges(cols []string, changes map[string]any,
 	return result
 }
 
+// StructField 字段信息
+type StructField struct {
+	Name  string
+	Type  reflect.Type
+	Value reflect.Value
+	*Tagger
+}
+
 // StructBuilder 已经解析的标签
 type StructBuilder struct {
-	FieldNames []string
-	FieldTypes map[string]reflect.Type
-	tags       map[string]*Tagger
+	Names  []string
+	Fields map[string]*StructField
 }
 
 // NewStructBuilder Read all tags in a object
 func NewStructBuilder(v any) *StructBuilder {
-	t := &StructBuilder{tags: make(map[string]*Tagger)}
 	vt := GetIndirectType(v)
 	if vt.Kind() != reflect.Struct {
-		return t
+		return nil
 	}
 	num := vt.NumField()
-	t.FieldNames = make([]string, num, num)
+	builder := &StructBuilder{
+		Names:  make([]string, num, num),
+		Fields: make(map[string]*StructField, num),
+	}
+	vv := reflect.ValueOf(v)
 	for i := 0; i < num; i++ {
 		field := vt.Field(i)
-		t.FieldNames[i] = field.Name
-		t.FieldTypes[field.Name] = field.Type
-		t.tags[field.Name] = ParseTag(field.Tag)
+		builder.Names[i] = field.Name
+		builder.Fields[field.Name] = &StructField{
+			Name:   field.Name,
+			Type:   field.Type,
+			Value:  vv.FieldByIndex([]int{i}),
+			Tagger: ParseTag(field.Tag),
+		}
 	}
-	return t
+	return builder
 }
 
 // GetFieldTag Read tag for a field and key
-func (t *StructBuilder) GetFieldTag(name, key string) string {
-	if tag, ok := t.tags[name]; ok {
-		return tag.Get(key)
+func (b *StructBuilder) GetFieldTag(name, key string) string {
+	if field, ok := b.Fields[name]; ok {
+		return field.Get(key)
 	}
 	return ""
 }
 
-// GetTagOpts 读取结构体的字段标签
-func (t *StructBuilder) GetTagOpts(key string, cols []string, opts []*TagOpt,
+// getTagOpts 读取结构体的字段标签
+func (b *StructBuilder) getTagOpts(key string, cols []string, opts []*TagOpt,
 ) ([]string, []*TagOpt) {
-	for name, tag := range t.tags {
-		tagVal := tag.Get(key)
+	for _, name := range b.Names {
+		tagVal := b.Fields[name].Get(key)
 		if tagVal == "-" {
 			continue
 		} else if strings.HasSuffix(tagVal, "inline") ||
 			strings.HasSuffix(tagVal, "extends") {
-			sub := NewStructBuilder(t.FieldTypes[name])
-			cols, opts = sub.GetTagOpts(key, cols, opts)
+			sub := NewStructBuilder(b.Fields[name].Type)
+			cols, opts = sub.getTagOpts(key, cols, opts)
 		} else {
 			opt := NewTagOpt(name, tagVal)
 			opts = append(opts, opt)
@@ -68,4 +82,10 @@ func (t *StructBuilder) GetTagOpts(key string, cols []string, opts []*TagOpt,
 		}
 	}
 	return cols, opts
+}
+
+// GetTagOpts 读取结构体的字段标签
+func (b *StructBuilder) GetTagOpts(key string) []*TagOpt {
+	_, opts := b.getTagOpts(key, nil, nil)
+	return opts
 }
