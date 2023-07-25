@@ -12,10 +12,10 @@ func EncodeFrom(v any) (d Dict, err error) {
 	if builder = NewStructBuilder(v); builder == nil {
 		return
 	}
-	for _, opt := range builder.GetTagOpts("json") {
+	fields, opts := builder.GetFieldTagOpts("json", nil, nil)
+	for i, opt := range opts {
 		fmt.Println(opt)
-		field := builder.Fields[opt.FieldName]
-		d[opt.Name] = field.Value.Int()
+		d[opt.Name] = fields[i].Value.Int()
 	}
 	return
 }
@@ -25,10 +25,10 @@ func DecodeTo(d Dict, v any) (err error) {
 	if builder = NewStructBuilder(v); builder == nil {
 		return
 	}
-	for _, opt := range builder.GetTagOpts("json") {
+	fields, opts := builder.GetFieldTagOpts("json", nil, nil)
+	for i, opt := range opts {
 		if val, ok := d[opt.Name]; ok {
-			field := builder.Fields[opt.FieldName]
-			field.Value.SetInt(val.(int64))
+			fields[i].Value.SetInt(val.(int64))
 		}
 	}
 	return

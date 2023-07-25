@@ -1,6 +1,35 @@
 package mapper
 
-import "strings"
+import (
+	"strings"
+
+	"github.com/iancoleman/strcase"
+)
+
+const (
+	NameNoChange NameCase = iota
+	NameLowerFirst
+	NameLowerCase
+	NameCamelCase
+	NameSnakeCase
+)
+
+type NameCase int
+
+func ToCase(name string, caser NameCase) string {
+	switch caser {
+	default:
+		return name
+	case NameLowerFirst:
+		return strcase.ToLowerCamel(name)
+	case NameLowerCase:
+		return strings.ToLower(name)
+	case NameCamelCase:
+		return strcase.ToCamel(name)
+	case NameSnakeCase:
+		return strcase.ToSnake(name)
+	}
+}
 
 // TagOpt 标签选项
 type TagOpt struct {
@@ -12,21 +41,23 @@ type TagOpt struct {
 }
 
 // NewTagOpt 解析标签内容
-func NewTagOpt(name, tag string) *TagOpt {
+func NewTagOpt(name, tag string, caser NameCase) *TagOpt {
 	tag = strings.TrimSpace(tag)
 	if tag == "-" || tag == "" && name == "" {
 		return nil
 	}
-	opt := &TagOpt{FieldName: name, Name: name}
+	opt := &TagOpt{FieldName: name, Name: ToCase(name, caser)}
 	if tag == "" {
 		return opt
-	} else if tag == "extends" {
-		opt.Inline = true
-		return opt
 	}
-	var found bool
-	if opt.Name, tag, found = strings.Cut(tag, ","); found {
-		_ = opt.ParseOption(tag)
+	head, tail, found := strings.Cut(tag, ",")
+	if head == "extends" {
+		opt.Inline = true
+	} else if head != "" {
+		opt.Name = head
+	}
+	if found {
+		_ = opt.ParseOption(tail)
 	}
 	return opt
 }
