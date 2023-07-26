@@ -22,31 +22,31 @@ func getStructTags(v any) map[string]reflect.StructTag {
 	return tags
 }
 
-// 连接配置
+// ConnParams 连接配置
 type ConnParams struct {
 	Host     string         `json:"host" yaml:"host" toml:"host"`
 	Port     int            `json:"port,omitempty" yaml:"port,omitempty" toml:"port"`
-	Username string         `yaml/json:"username,omitempty" toml:"username"`
+	Username string         `yaml/json:"username" toml:"username"`
 	Password string         `toml/yaml/json:"password"`
 	Database string         `toml/yaml/json:"database"`
 	Options  map[string]any `yaml/json:"options,omitempty" toml:"options"`
 }
 
-// go test -run=Burnish
-func Test_01_Tag_Burnish(t *testing.T) {
+// go test -run=TagBurnish
+func Test01_TagBurnish(t *testing.T) {
 	tagDict := getStructTags(ConnParams{})
 	tag := mapper.BurnishTag(tagDict["Port"], "json", "toml", "yaml")
 	assert.Equal(t, "port,omitempty", tag.Get("yaml"))
 	assert.Equal(t, `json:"port,omitempty" toml:"port" yaml:"port,omitempty"`, tag.String())
 }
 
-// go test -run=Parse
-func Test_02_Tag_Parse(t *testing.T) {
+// go test -run=TagParse
+func Test02_TagParse(t *testing.T) {
 	tagDict := getStructTags(ConnParams{})
-	tag := mapper.ParseTag(tagDict["Username"])
-	assert.Equal(t, "username,omitempty", tag.Get("yaml"))
-	assert.Equal(t, `json:"username,omitempty" toml:"username" yaml:"username,omitempty"`, tag.String())
-	tag = mapper.ParseTag(tagDict["Password"])
+	tag := mapper.ParseTag(tagDict["Password"])
 	assert.Equal(t, "password", tag.Get("yaml"))
 	assert.Equal(t, `json:"password" toml:"password" yaml:"password"`, tag.String())
+	tag = mapper.ParseTag(tagDict["Options"])
+	assert.Equal(t, "options,omitempty", tag.Get("yaml"))
+	assert.Equal(t, `json:"options,omitempty" toml:"options" yaml:"options,omitempty"`, tag.String())
 }
