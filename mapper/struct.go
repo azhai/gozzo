@@ -3,10 +3,11 @@ package mapper
 import (
 	"reflect"
 	"strconv"
+
+	"github.com/azhai/gozzo/datatype"
 )
 
-// Dict 哈希表
-type Dict = map[string]any
+type Dict = map[string]any // Dict 哈希表
 
 // GetColumnChanges 只保留匹配字段标签的数据
 func GetColumnChanges(cols []string, changes map[string]any,
@@ -44,6 +45,43 @@ func (f *StructField) GetTagOpt(key string, caser NameCase) (opt *TagOpt) {
 	return
 }
 
+// IsEmptyValue ignore the field when it is empty value
+func (f *StructField) IsEmptyValue() bool {
+	kind := f.Type.Kind()
+	if kind == reflect.Pointer {
+		return f.Value.IsNil()
+	} else if kind == reflect.Slice || kind == reflect.Map {
+		return f.Value.IsNil()
+	} else {
+		return f.Value.IsZero()
+	}
+}
+
+// SetString Change the value of field
+func (f *StructField) SetString(val string) (err error) {
+	// 类型不同且有转换函数
+	switch f.Type.Kind() {
+	default:
+		f.Value.SetString(val)
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		var num int64
+		if num, err = strconv.ParseInt(val, 10, 64); err == nil {
+			f.Value.SetInt(num)
+		}
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		var num uint64
+		if num, err = strconv.ParseUint(val, 10, 64); err == nil {
+			f.Value.SetUint(num)
+		}
+	case reflect.Float32, reflect.Float64:
+		var num float64
+		if num, err = strconv.ParseFloat(val, 64); err == nil {
+			f.Value.SetFloat(num)
+		}
+	}
+	return
+}
+
 // SetValue Change the value of field
 func (f *StructField) SetValue(val any, conv string) (err error) {
 	vx := reflect.ValueOf(val)
@@ -58,7 +96,8 @@ func (f *StructField) SetValue(val any, conv string) (err error) {
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 		value := vx.Int()
 		if conv == "string" {
-			f.Value.SetString(strconv.FormatInt(value, 10))
+			str := strconv.FormatInt(value, 10)
+			f.Value.SetString(str)
 		} else if conv == "int" {
 			f.Value.SetInt(value)
 		} else if conv == "uint" {
@@ -69,7 +108,8 @@ func (f *StructField) SetValue(val any, conv string) (err error) {
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
 		value := vx.Uint()
 		if conv == "string" {
-			f.Value.SetString(strconv.FormatUint(value, 10))
+			str := strconv.FormatUint(value, 10)
+			f.Value.SetString(str)
 		} else if conv == "int" {
 			f.Value.SetInt(int64(value))
 		} else if conv == "uint" {
@@ -80,7 +120,8 @@ func (f *StructField) SetValue(val any, conv string) (err error) {
 	case reflect.Float32, reflect.Float64:
 		value := vx.Float()
 		if conv == "string" {
-			f.Value.SetString(strconv.FormatFloat(value, 'G', -1, 64))
+			str := strconv.FormatFloat(value, 'G', -1, 64)
+			f.Value.SetString(str)
 		} else if conv == "int" {
 			f.Value.SetInt(int64(value))
 		} else if conv == "uint" {
@@ -92,62 +133,6 @@ func (f *StructField) SetValue(val any, conv string) (err error) {
 	return
 }
 
-// SetDict Change the value of dict field
-func (f *StructField) SetDict(target Dict, name string, omitEmpty bool) (Dict, error) {
-	var err error
-	kind := f.Type.Kind()
-	if omitEmpty {
-		if kind == reflect.Pointer && f.Value.IsNil() {
-			return target, err
-		}
-		if kind != reflect.Pointer && f.Value.IsZero() {
-			return target, err
-		}
-	}
-	switch kind {
-	case reflect.String:
-		target[name] = f.Value.String()
-	case reflect.Int:
-		target[name] = int(f.Value.Int())
-	case reflect.Int8:
-		target[name] = int8(f.Value.Int())
-	case reflect.Int16:
-		target[name] = int16(f.Value.Int())
-	case reflect.Int32:
-		target[name] = int32(f.Value.Int())
-	case reflect.Int64:
-		target[name] = f.Value.Int()
-	case reflect.Uint:
-		target[name] = int(f.Value.Uint())
-	case reflect.Uint8:
-		target[name] = int8(f.Value.Uint())
-	case reflect.Uint16:
-		target[name] = int16(f.Value.Uint())
-	case reflect.Uint32:
-		target[name] = int32(f.Value.Uint())
-	case reflect.Uint64:
-		target[name] = f.Value.Uint()
-	case reflect.Float32:
-		target[name] = float32(f.Value.Float())
-	case reflect.Float64:
-		target[name] = f.Value.Float()
-	case reflect.Bool:
-		target[name] = f.Value.Bool()
-	case reflect.Slice:
-		vt := GetIndirectType(f.Value.Type())
-		val := reflect.MakeSlice(vt.Elem(), 0, 0)
-		target[name] = val.Interface()
-	case reflect.Map:
-		vt := GetIndirectType(f.Value.Type())
-		mt := reflect.MapOf(vt.Key(), vt.Elem())
-		val := reflect.MakeMap(mt)
-		target[name] = val.Interface()
-	case reflect.Struct:
-		target[name], err = DecodeToDict(f.Value)
-	}
-	return target, err
-}
-
 // StructBuilder 已经解析的标签
 type StructBuilder struct {
 	Names  []string
@@ -156,7 +141,7 @@ type StructBuilder struct {
 
 // NewStructBuilder Read all tags in a object
 func NewStructBuilder(v any) *StructBuilder {
-	vt := GetIndirectType(v)
+	vt := datatype.GetIndirectType(v)
 	if vt.Kind() != reflect.Struct {
 		return nil
 	}

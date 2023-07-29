@@ -6,6 +6,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/azhai/gozzo/datatype"
 	"github.com/azhai/gozzo/match"
 )
 
@@ -79,13 +80,13 @@ func (t *Tagger) String() string {
 	}
 	var data []byte
 	if len(t.alias) > len(t.data) {
-		for _, key := range SortedMapKeys(t.alias) {
+		for _, key := range datatype.SortedMapKeys(t.alias) {
 			if value := t.Get(key); value != "" {
 				data = t.Build(data, key, value)
 			}
 		}
 	} else {
-		for _, name := range SortedMapKeys(t.data) {
+		for _, name := range datatype.SortedMapKeys(t.data) {
 			data = t.Build(data, name, t.data[name])
 		}
 	}

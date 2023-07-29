@@ -33,9 +33,9 @@ func ToCase(name string, caser NameCase) string {
 
 // TagOpt 标签选项
 type TagOpt struct {
-	FieldName string
 	Name      string
-	Convert   string
+	FieldName string
+	ConvType  string
 	OmitEmpty bool
 	Inline    bool
 }
@@ -74,7 +74,7 @@ func (p *TagOpt) ParseOption(tag string) error {
 		} else if head == "inline" || head == "extends" {
 			p.Inline = true
 		} else {
-			p.Convert = head
+			p.ConvType = head
 		}
 	}
 	return nil

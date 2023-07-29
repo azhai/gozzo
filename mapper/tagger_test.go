@@ -4,6 +4,7 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/azhai/gozzo/datatype"
 	"github.com/azhai/gozzo/mapper"
 	"github.com/stretchr/testify/assert"
 )
@@ -11,7 +12,7 @@ import (
 // getStructTags Read all tags in a object
 func getStructTags(v any) map[string]reflect.StructTag {
 	tags := make(map[string]reflect.StructTag)
-	vt := mapper.GetIndirectType(v)
+	vt := datatype.GetIndirectType(v)
 	if vt.Kind() != reflect.Struct {
 		return tags
 	}
