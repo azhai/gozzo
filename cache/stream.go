@@ -3,6 +3,7 @@ package cache
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/redis/go-redis/v9"
@@ -90,6 +91,15 @@ func (r *RedisStream) Ack(ids ...string) int {
 	return r.Int(op.Result())
 }
 
+// Remove 删除消息
+func (r *RedisStream) Remove(needAck bool, ids ...string) int {
+	if needAck && len(ids) != r.Ack(ids...) {
+		return 0
+	}
+	op := r.conn.XDel(r.ctx, r.name, ids...)
+	return r.Int(op.Result())
+}
+
 // Trim 保留最新的一些消息，使用XTrimApprox更高效
 func (r *RedisStream) Trim(size int, isApprox bool) int {
 	var op *redis.IntCmd
@@ -126,11 +136,15 @@ func (r *RedisStream) Subscribe(consumer string, ack bool, count, secs int) []re
 		Block: block, Count: int64(count), NoAck: ack == false,
 	}
 	streams, err := r.conn.XReadGroup(r.ctx, args).Result()
-	if err != nil {
+	if err == nil {
+		return streams
+	} else if strings.HasPrefix(err.Error(), "NOGROUP") {
+		r.DestroyGroup()
+		return nil
+	} else {
 		fmt.Println("RedisStream Subscribe error:", err)
 		return nil
 	}
-	return streams
 }
 
 // ReadMessages 读取消息
