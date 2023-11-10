@@ -27,12 +27,16 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"net/url"
 	"os"
 	"path/filepath"
 	"sort"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/go-playground/form/v4"
+	"go.uber.org/zap"
 )
 
 const (
@@ -58,8 +62,14 @@ var (
 // ensure we always implement io.WriteCloser
 var _ io.WriteCloser = (*RotateFile)(nil)
 
+// rotate For RegisterSink
+func rotate(url *url.URL) (sink zap.Sink, err error) {
+	sink = &RotateFile{Filename: url.Path, LocalTime: true, Compress: true}
+	err = form.NewDecoder().Decode(&sink, url.Query())
+	return
+}
+
 // RotateFile is an io.WriteCloser that writes to the specified filename.
-//
 // RotateFile opens or creates the logfile on first Write.  If the file exists and
 // is less than MaxSize megabytes, lumberjack will open and append to that file.
 // If the file exists and its size is >= MaxSize megabytes, the file is renamed

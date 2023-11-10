@@ -23,10 +23,11 @@ func NewLogger(filename string) *XormLogger {
 
 // WrapLogger 封装日志
 func WrapLogger(l *zap.SugaredLogger) *XormLogger {
+	lvl := log.LOG_INFO
 	if l == nil {
-		l = zap.NewNop().Sugar()
+		l, lvl = zap.NewNop().Sugar(), log.LOG_OFF
 	}
-	return &XormLogger{level: log.LOG_INFO, showSQL: true, SugaredLogger: l}
+	return &XormLogger{level: lvl, showSQL: true, SugaredLogger: l}
 }
 
 // AfterSQL implements ContextLogger

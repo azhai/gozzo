@@ -12,7 +12,7 @@ import (
 
 type NewHashFunc func() hash.Hash
 
-// hmac哈希，例如 NewMacHash(sha256.New).SetKey("nonce")
+// MacHash 例如 NewMacHash(sha256.New).SetKey("nonce")
 type MacHash struct {
 	creator   NewHashFunc
 	secretKey []byte
@@ -45,7 +45,7 @@ func (h MacHash) Verify(text, hashed string) bool {
 	return false
 }
 
-// 产生随机salt
+// RandSalt 产生随机salt
 func RandSalt(size int) string {
 	buf := make([]byte, (size+1)/2)
 	if _, err := rand.Read(buf); err == nil {
@@ -54,7 +54,7 @@ func RandSalt(size int) string {
 	return ""
 }
 
-// 带salt值的sha256密码哈希
+// SaltPassword 带salt值的sha256密码哈希
 type SaltPassword struct {
 	saltLen int
 	saltSep string
@@ -68,14 +68,14 @@ func NewSaltPassword(len int, sep string) *SaltPassword {
 	}
 }
 
-// 设置密码
+// CreatePassword 设置密码
 func (p *SaltPassword) CreatePassword(plainText string) string {
 	saltValue := RandSalt(p.saltLen)
 	cipherText := p.SetKey(saltValue).Sign(plainText)
 	return saltValue + p.saltSep + cipherText
 }
 
-// 校验密码
+// VerifyPassword 校验密码
 func (p *SaltPassword) VerifyPassword(plainText, cipherText string) bool {
 	pieces := strings.SplitN(cipherText, p.saltSep, 2)
 	if len(pieces) == 2 {

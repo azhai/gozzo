@@ -2,6 +2,9 @@ package filesystem
 
 import (
 	"fmt"
+	"image"
+	_ "image/jpeg"
+	_ "image/png"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -14,24 +17,68 @@ const (
 	DefaultFileMode = 0o644
 )
 
-// FileSize 检查文件是否存在及大小
-// -1, false 不合法的路径
-// 0, false 路径不存在
-// -1, true 存在文件夹
-// >=0, true 文件并存在
-func FileSize(path string) (int64, bool) {
-	if path == "" {
-		return -1, false
+type FileHandler struct {
+	path    string
+	err     error
+	handler *os.File
+	os.FileInfo
+}
+
+func NewFileHandler(path string) *FileHandler {
+	fh := &FileHandler{path: path}
+	_ = fh.Stat()
+	return fh
+}
+
+func (f *FileHandler) Stat() error {
+	f.FileInfo, f.err = os.Stat(f.path)
+	return f.err
+}
+
+func (f *FileHandler) Error() error {
+	return f.err
+}
+
+func (f *FileHandler) IsExist() bool {
+	return f.err == nil || !os.IsNotExist(f.err)
+}
+
+func (f *FileHandler) IsAllow() bool {
+	return f.err == nil || !os.IsPermission(f.err)
+}
+
+func (f *FileHandler) Close() error {
+	return f.handler.Close()
+}
+
+func (f *FileHandler) Create() *os.File {
+	if f.IsExist() || f.IsDir() {
+		return nil
 	}
-	info, err := os.Stat(path)
-	if err != nil && os.IsNotExist(err) {
-		return 0, false
+	f.handler, f.err = CreateFile(f.path)
+	return f.handler
+}
+
+func (f *FileHandler) Open(flag int) *os.File {
+	if f.IsExist() && f.IsAllow() && !f.IsDir() {
+		f.handler, f.err = OpenFile(f.path, flag)
+	} else if flag&os.O_CREATE == os.O_CREATE {
+		f.Create()
 	}
-	size := int64(-1)
-	if info.IsDir() == false {
-		size = info.Size()
+	return f.handler
+}
+
+func (f *FileHandler) GetDims() (int, int) {
+	if f.Open(os.O_RDONLY); f.err != nil {
+		_, _ = fmt.Fprintf(os.Stderr, "%s: %v\n", f.path, f.err)
+		return 0, 0
 	}
-	return size, true
+	img, _, err := image.DecodeConfig(f.handler)
+	if err != nil {
+		_, _ = fmt.Fprintf(os.Stderr, "%s: %v\n", f.path, err)
+		return 0, 0
+	}
+	return img.Width, img.Height
 }
 
 func CreateFile(path string) (fp *os.File, err error) {
@@ -46,25 +93,25 @@ func CreateFile(path string) (fp *os.File, err error) {
 	return
 }
 
-func OpenFile(path string, readonly, append bool) (fp *os.File, size int64, err error) {
-	var exists bool
-	size, exists = FileSize(path)
-	if size < 0 {
-		err = fmt.Errorf("path is directory or illegal")
-		return
-	}
-	if exists {
-		flag := os.O_RDWR
-		if readonly {
-			flag = os.O_RDONLY
-		} else if append {
-			flag |= os.O_APPEND
-		}
-		fp, err = os.OpenFile(path, flag, DefaultFileMode)
-	} else if readonly == false {
+func OpenFile(path string, flag int) (fp *os.File, err error) {
+	fp, err = os.OpenFile(path, flag, DefaultFileMode)
+	if os.IsNotExist(err) {
 		fp, err = CreateFile(path)
 	}
 	return
+}
+
+func WriteFile(path string, data []byte, append bool) error {
+	flag := os.O_RDWR | os.O_TRUNC
+	if append {
+		flag = os.O_RDWR | os.O_APPEND
+	}
+	fp, err := OpenFile(path, flag)
+	if err == nil {
+		defer fp.Close()
+		_, err = fp.Write(data)
+	}
+	return err
 }
 
 // LineCount 使用 wc -l 计算有多少行
@@ -85,17 +132,4 @@ func LineCount(filename string) int {
 		return -1
 	}
 	return num
-}
-
-// MkdirForFile 为文件路径创建目录
-func MkdirForFile(path string) int64 {
-	size, exists := FileSize(path)
-	if size < 0 {
-		return size
-	}
-	if !exists {
-		dir := filepath.Dir(path)
-		_ = os.MkdirAll(dir, DefaultDirMode)
-	}
-	return size
 }

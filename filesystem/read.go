@@ -3,6 +3,7 @@ package filesystem
 import (
 	"bufio"
 	"io"
+	"os"
 )
 
 // LineReader 每次只保留当前行数据
@@ -13,8 +14,8 @@ type LineReader struct {
 	*bufio.Reader
 }
 
-func NewLineReader(fname string) *LineReader {
-	fp, _, err := OpenFile(fname, true, false)
+func NewLineReader(path string) *LineReader {
+	fp, err := OpenFile(path, os.O_RDONLY)
 	return &LineReader{err: err, rd: fp, Reader: bufio.NewReader(fp)}
 }
 
@@ -52,11 +53,11 @@ func (r *LineReader) Reading() bool {
 
 // ReadLines 读取全部数据，按行组成列表
 func ReadLines(path string) ([]string, error) {
-	fp, _, err := OpenFile(path, true, false)
-	defer fp.Close()
+	fp, err := OpenFile(path, os.O_RDONLY)
 	if err != nil {
 		return nil, err
 	}
+	defer fp.Close()
 	scanner := bufio.NewScanner(fp)
 	scanner.Split(bufio.ScanLines)
 	var result []string
@@ -68,7 +69,7 @@ func ReadLines(path string) ([]string, error) {
 
 // ReadFileTail 读取文件末尾若干字节
 func ReadFileTail(path string, size int) ([]byte, error) {
-	fp, _, err := OpenFile(path, true, false)
+	fp, err := OpenFile(path, os.O_RDONLY)
 	if err != nil {
 		return nil, err
 	}

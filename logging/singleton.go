@@ -15,6 +15,11 @@ func SetLogger(l *zap.SugaredLogger) {
 	defaultLogger = l
 }
 
+// SetLoggerDir sets the default logger in the dir
+func SetLoggerDir(dir string) {
+	SetLogger(NewLogger(dir))
+}
+
 func WithContext(_ context.Context) *zap.SugaredLogger {
 	return defaultLogger
 }

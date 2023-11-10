@@ -1,10 +1,8 @@
 package logging
 
 import (
-	"net/url"
 	"strings"
 
-	"github.com/go-playground/form/v4"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -29,12 +27,9 @@ var LogLevels = map[string]zapcore.Level{
 
 func init() {
 	// 注册rotate文件
-	zap.RegisterSink("rotate", func(url *url.URL) (sink zap.Sink, err error) {
-		decoder := form.NewDecoder()
-		sink = &RotateFile{Filename: url.Path, LocalTime: true, Compress: true}
-		err = decoder.Decode(&sink, url.Query())
-		return
-	})
+	if err := zap.RegisterSink("rotate", rotate); err != nil {
+		panic(err)
+	}
 }
 
 // GetZapLevel 转为zap的Level

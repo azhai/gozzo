@@ -81,12 +81,12 @@ func (c *LogConfig) BuildLogger(dir string, opts ...zap.Option) (*zap.Logger, er
 	if c.IsNop() {
 		return zap.NewNop(), nil
 	}
-	if c.GetLevel().Enabled(zapcore.InfoLevel) {
+	if c.BuildLevel().Enabled(zapcore.InfoLevel) {
 		c.Development = true
 		c.Sampling = nil
 	}
 	dir = strings.TrimSpace(dir)
-	if cores := c.GetCores(dir); len(cores) > 1 {
+	if cores := c.BuildCores(dir); len(cores) > 1 {
 		opts = append(opts, ReplaceCores(cores))
 	}
 	return c.Config.Build(opts...)
@@ -97,16 +97,16 @@ func (c *LogConfig) IsNop() bool {
 	return len(c.Outputs) == 0 && len(c.OutputPaths) == 0
 }
 
-// GetLevel 当前日志的最低级别
-func (c *LogConfig) GetLevel() zap.AtomicLevel {
+// BuildLevel 当前日志的最低级别
+func (c *LogConfig) BuildLevel() zap.AtomicLevel {
 	var level zapcore.Level
 	c.MinLevel, level = GetZapLevel(c.MinLevel)
 	c.Level = zap.NewAtomicLevelAt(level)
 	return c.Level
 }
 
-// GetCores 产生记录器内核
-func (c *LogConfig) GetCores(dir string) []zapcore.Core {
+// BuildCores 产生记录器内核
+func (c *LogConfig) BuildCores(dir string) []zapcore.Core {
 	var (
 		cores []zapcore.Core
 		ws    zapcore.WriteSyncer
