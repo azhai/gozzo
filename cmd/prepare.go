@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	Version  = "1.3.7"
+	Version  = "1.3.9"
 	MegaByte = 1024 * 1024
 )
 

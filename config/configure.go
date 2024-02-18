@@ -26,8 +26,9 @@ type RootConfig struct {
 
 // AppConfig App配置，包括App名称和自定义配置
 type AppConfig struct {
-	Name   string   `hcl:"name" json:"name"`
-	Remain hcl.Body `hcl:",remain"`
+	Name    string   `hcl:"name,optional" json:"name,omitempty"`
+	Version string   `hcl:"version,optional" json:"version,omitempty"`
+	Remain  hcl.Body `hcl:",remain"`
 }
 
 // LogConfig 日志配置，指定文件夹或URL文件
