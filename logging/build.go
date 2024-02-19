@@ -183,7 +183,10 @@ func GetAbsPath(file string, onlyFile bool) (path string, err error) {
 		return // 只能处理文件类型
 	}
 	// 去掉scheme，重新解析，以便接着处理相对路径问题
-	u, err = url.Parse(file[len(u.Scheme+"://"):])
+	if u.Scheme != "" {
+		file = file[len(u.Scheme+"://"):]
+	}
+	u, err = url.Parse(file)
 	path, _ = filepath.Abs(u.Path)
 	path = ignoreWinDisk(path)
 	if scheme != "file" { // 重新拼接
