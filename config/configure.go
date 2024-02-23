@@ -14,9 +14,10 @@ var theSettings *RootConfig
 
 // RootConfig 顶层配置，包含其他配置块
 type RootConfig struct {
-	Debug bool       `hcl:"debug" json:"debug"`
-	App   *AppConfig `hcl:"app,block" json:"app"`
-	Log   *LogConfig `hcl:"log,block" json:"log,omitempty"`
+	Debug  bool       `hcl:"debug" json:"debug"`
+	App    *AppConfig `hcl:"app,block" json:"app"`
+	Log    *LogConfig `hcl:"log,block" json:"log,omitempty"`
+	Remain hcl.Body   `hcl:",remain"`
 }
 
 // AppConfig App配置，包括App名称和自定义配置
