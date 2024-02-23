@@ -6,7 +6,7 @@ import (
 	"io"
 	"os"
 
-	"github.com/azhai/gozzo/filesystem"
+	fs "github.com/azhai/gozzo/filesystem"
 )
 
 // Md5Sum 计算md5哈希值
@@ -17,7 +17,7 @@ func Md5Sum(data string) string {
 
 // Md5File 计算文件的md5哈希值
 func Md5File(filename string) (string, error) {
-	fp, err := filesystem.OpenFile(filename, os.O_RDONLY)
+	fp, err := fs.OpenFile(filename, os.O_RDONLY)
 	if err != nil {
 		return "", err
 	}

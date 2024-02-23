@@ -5,8 +5,13 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
+
+	. "github.com/klauspost/cpuid/v2"
 )
+
+const MegaByte = 1024 * 1024
 
 var (
 	backDirs int    // 回退目录层级
@@ -15,10 +20,23 @@ var (
 )
 
 func init() {
-	flag.IntVar(&backDirs, "bcd", 0, "回退目录层级") // 默认在bin目录下
-	flag.StringVar(&cfgFile, "hcl", "settings.hcl", "配置文件位置")
+	flag.IntVar(&backDirs, "bd", 0, "回退目录层级") // 默认在bin目录下
+	flag.StringVar(&cfgFile, "cf", "settings.hcl", "配置文件位置")
 	// 和urfave/cli的version参数冲突，需要在App中设置HideVersion
-	flag.BoolVar(&verbose, "vvv", false, "详细输出")
+	flag.BoolVar(&verbose, "vv", false, "详细输出")
+}
+
+// PrepareEnv 初始化环境
+func PrepareEnv(size int) {
+	if size > 0 { // 压舱石，阻止频繁GC
+		ballast := make([]byte, size*MegaByte)
+		runtime.KeepAlive(ballast)
+	}
+
+	if level := os.Getenv("GOAMD64"); level == "" {
+		level = fmt.Sprintf("v%d", CPU.X64Level())
+		fmt.Printf("请设置环境变量 export GOAMD64=%s\n\n", level)
+	}
 }
 
 // SetupEnv 根据不同场景初始化

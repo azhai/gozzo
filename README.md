@@ -8,7 +8,7 @@ The utils in golang.
 package main
 import (
     "fmt"
-	
+
     "github.com/azhai/gozzo/decimal"
 )
 
@@ -30,17 +30,17 @@ package main
 import (
 	"fmt"
 
-	"github.com/azhai/gozzo/filesystem"
+	fs "github.com/azhai/gozzo/filesystem"
 )
 
 // 文件计行
 func main() {
 	filename := "README.md"
-	count := filesystem.LineCount(filename)
+	count := fs.LineCount(filename)
 
 	// 逐行返回，适用于大文件
 	var lines []string
-	r := filesystem.NewLineReader(filename)
+	r := fs.NewLineReader(filename)
 	for r.Reading() {
 		lines = append(lines, r.Text())
 	}

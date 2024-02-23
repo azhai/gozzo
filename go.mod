@@ -6,17 +6,17 @@ require (
 	github.com/Code-Hex/pget v0.2.1
 	github.com/go-playground/form/v4 v4.2.1
 	github.com/gobwas/glob v0.2.3
-	github.com/gofiber/fiber/v3 v3.0.0-20240213140423-ae8f09ac3b90
+	github.com/gofiber/fiber/v3 v3.0.0-20240223081200-8c413d065233
 	github.com/hashicorp/hcl/v2 v2.19.1
 	github.com/iancoleman/strcase v0.3.0
 	github.com/k0kubun/pp v3.0.1+incompatible
 	github.com/kellydunn/golang-geo v0.7.0
-	github.com/klauspost/cpuid/v2 v2.2.6
+	github.com/klauspost/cpuid/v2 v2.2.7
 	github.com/muyo/sno v1.2.1
 	github.com/pkg/errors v0.9.1
-	github.com/redis/go-redis/v9 v9.5.0
+	github.com/redis/go-redis/v9 v9.5.1
 	github.com/stretchr/testify v1.8.4
-	go.uber.org/zap v1.26.0
+	go.uber.org/zap v1.27.0
 	golang.org/x/tools v0.18.0
 	gorm.io/gorm v1.25.7
 	xorm.io/xorm v1.3.8

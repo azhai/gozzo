@@ -6,10 +6,7 @@ import (
 	_ "image/jpeg"
 	_ "image/png"
 	"os"
-	"os/exec"
 	"path/filepath"
-	"strconv"
-	"strings"
 )
 
 const (
@@ -17,6 +14,7 @@ const (
 	DefaultFileMode = 0o644
 )
 
+// FileHandler 文件句柄
 type FileHandler struct {
 	path    string
 	err     error
@@ -24,12 +22,14 @@ type FileHandler struct {
 	os.FileInfo
 }
 
-func NewFileHandler(path string) *FileHandler {
+// File 获取文件信息
+func File(path string) *FileHandler {
 	fh := &FileHandler{path: path}
 	_ = fh.Stat()
 	return fh
 }
 
+// Stat 查看文件信息
 func (f *FileHandler) Stat() error {
 	f.FileInfo, f.err = os.Stat(f.path)
 	return f.err
@@ -48,6 +48,9 @@ func (f *FileHandler) IsAllow() bool {
 }
 
 func (f *FileHandler) Close() error {
+	if f.handler == nil {
+		return nil
+	}
 	return f.handler.Close()
 }
 
@@ -112,24 +115,4 @@ func WriteFile(path string, data []byte, append bool) error {
 		_, err = fp.Write(data)
 	}
 	return err
-}
-
-// LineCount 使用 wc -l 计算有多少行
-func LineCount(filename string) int {
-	var err error
-	filename, err = filepath.Abs(filename)
-	if err != nil {
-		return -1
-	}
-	var out []byte
-	out, err = exec.Command("wc", "-l", filename).Output()
-	if err != nil {
-		return -1
-	}
-	num := 0
-	col := strings.SplitN(string(out), " ", 2)[0]
-	if num, err = strconv.Atoi(col); err != nil {
-		return -1
-	}
-	return num
 }

@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/Code-Hex/pget"
-	"github.com/azhai/gozzo/filesystem"
+	fs "github.com/azhai/gozzo/filesystem"
 )
 
 type Downloader struct {
@@ -78,7 +78,7 @@ func (d *Downloader) GetSavePath(fileUrl, fileName string) string {
 // Download 下载文件到指定位置
 func (d *Downloader) Download(fileUrl, fileName string, force bool) (size int64, err error) {
 	savePath := d.GetSavePath(fileUrl, fileName)
-	if !force && filesystem.NewFileHandler(savePath).IsExist() {
+	if !force && fs.File(savePath).IsExist() {
 		return
 	}
 	if size, err = d.GetLength(fileUrl); err != nil {

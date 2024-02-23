@@ -46,6 +46,11 @@ func SetupLog() {
 	logging.SetLogger(logger)
 }
 
+// LoadConfigFile 读取默认配置文件
+func LoadConfigFile(options any) (*RootConfig, error) {
+	return ReadConfigFile(cfgFile, verbose, options)
+}
+
 // ReadConfigFile 读取配置文件
 func ReadConfigFile(cfgFile string, verbose bool, options any) (*RootConfig, error) {
 	var err error

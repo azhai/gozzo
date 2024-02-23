@@ -4,15 +4,17 @@ import (
 	"flag"
 	"fmt"
 
-	"github.com/azhai/gozzo/cmd"
-	"github.com/azhai/gozzo/filesystem"
+	"github.com/azhai/gozzo/config"
+	fs "github.com/azhai/gozzo/filesystem"
 	"github.com/azhai/gozzo/rewrite"
 )
+
+const Version = "1.4.0"
 
 var verbose bool
 
 func init() {
-	cmd.PrepareEnv(20)
+	config.PrepareEnv(20)
 
 	flag.BoolVar(&verbose, "v", false, "display more information")
 	flag.Usage = usage
@@ -20,6 +22,7 @@ func init() {
 }
 
 func main() {
+	fmt.Println("NOTE: The below files with an * at the beginning have been modified.")
 	if flag.NArg() == 0 {
 		prettifyDir(".")
 		return
@@ -35,13 +38,13 @@ func usage() {
 	desc := `Version: v%s
 Usage: rew [flags] [dir ...]
 `
-	fmt.Fprintf(out, desc, cmd.Version)
+	fmt.Fprintf(out, desc, Version)
 	flag.PrintDefaults()
 }
 
 // prettifyDir 美化目录下的go代码文件
 func prettifyDir(dir string) {
-	files, err := filesystem.FindFiles(dir, ".go", "vendor/", ".git/")
+	files, err := fs.FindFiles(dir, ".go", "vendor/", ".git/")
 	if err != nil {
 		panic(err)
 	}
