@@ -4,7 +4,6 @@ go 1.22
 
 require (
 	github.com/Code-Hex/pget v0.2.1
-	github.com/azhai/xgen v1.7.2
 	github.com/go-playground/form/v4 v4.2.1
 	github.com/gobwas/glob v0.2.3
 	github.com/gofiber/fiber/v3 v3.0.0-20240213140423-ae8f09ac3b90
@@ -37,28 +36,20 @@ require (
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/erikstmartin/go-testdb v0.0.0-20160219214506-8d10e4a1bae5 // indirect
 	github.com/fatih/color v1.16.0 // indirect
-	github.com/goccy/go-json v0.10.2 // indirect
 	github.com/gofiber/utils/v2 v2.0.0-beta.3 // indirect
-	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/go-cmp v0.6.0 // indirect
 	github.com/google/uuid v1.6.0 // indirect
-	github.com/grsmv/inflect v0.0.0-20140723132642-a28d3de3b3ad // indirect
 	github.com/jessevdk/go-flags v1.5.0 // indirect
-	github.com/json-iterator/go v1.1.12 // indirect
+	github.com/k0kubun/colorstring v0.0.0-20150214042306-9440f1994b88 // indirect
 	github.com/kylelemons/go-gypsy v1.0.0 // indirect
 	github.com/lib/pq v1.10.9 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-runewidth v0.0.15 // indirect
 	github.com/mcuadros/go-version v0.0.0-20190830083331-035f6764e8d2 // indirect
-	github.com/mitchellh/copystructure v1.2.0 // indirect
 	github.com/mitchellh/go-wordwrap v1.0.1 // indirect
-	github.com/mitchellh/reflectwalk v1.0.2 // indirect
-	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
-	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
-	github.com/syndtr/goleveldb v1.0.0 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/zclconf/go-cty v1.14.2 // indirect
 	github.com/ziutek/mymysql v1.5.4 // indirect
@@ -69,5 +60,4 @@ require (
 	golang.org/x/term v0.17.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	xorm.io/builder v0.3.13 // indirect
 )
