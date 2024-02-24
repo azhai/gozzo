@@ -19,6 +19,11 @@ var (
 	verbose  bool   // 详细输出
 )
 
+// ParseConfigFile 读取默认配置文件
+func ParseConfigFile(options any) (*RootConfig, error) {
+	return ReadConfigFile(cfgFile, verbose, options)
+}
+
 // PrepareEnv 初始化环境
 func PrepareEnv(size int) {
 	if size > 0 { // 压舱石，阻止频繁GC
@@ -50,7 +55,7 @@ func SetupConfig(options any) {
 	if cfgFile != "" && !filepath.IsAbs(cfgFile) {
 		cfgFile, _ = filepath.Abs(cfgFile) // 配置文件绝对路径
 	}
-	settings, err := ReadConfigFile(cfgFile, verbose, options)
+	settings, err := ParseConfigFile(options)
 	if err != nil {
 		fmt.Printf("err=%#v\n%#v\n\n", err, settings)
 	}
