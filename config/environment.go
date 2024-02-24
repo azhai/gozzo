@@ -19,13 +19,6 @@ var (
 	verbose  bool   // 详细输出
 )
 
-func init() {
-	flag.IntVar(&backDirs, "bd", 0, "回退目录层级") // 默认在bin目录下
-	flag.StringVar(&cfgFile, "cf", "settings.hcl", "配置文件位置")
-	// 和urfave/cli的version参数冲突，需要在App中设置HideVersion
-	flag.BoolVar(&verbose, "vv", false, "详细输出")
-}
-
 // PrepareEnv 初始化环境
 func PrepareEnv(size int) {
 	if size > 0 { // 压舱石，阻止频繁GC
@@ -39,8 +32,16 @@ func PrepareEnv(size int) {
 	}
 }
 
-// SetupEnv 根据不同场景初始化
-func SetupEnv(options any) {
+// PrepareFlags 解析命令行参数
+func PrepareFlags() {
+	flag.IntVar(&backDirs, "bd", 0, "回退目录层级") // 默认在bin目录下
+	flag.StringVar(&cfgFile, "cf", "settings.hcl", "配置文件位置")
+	// 和urfave/cli的version参数冲突，需要在App中设置HideVersion
+	flag.BoolVar(&verbose, "vv", false, "详细输出")
+}
+
+// SetupConfig 根据不同场景初始化
+func SetupConfig(options any) {
 	if IsRunTest() {
 		_, _ = BackToDir(1) // 从tests退回根目录
 	} else {

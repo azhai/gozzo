@@ -38,7 +38,7 @@ func usage() {
 	desc := `Version: v%s
 Usage: rew [flags] [dir ...]
 `
-	fmt.Fprintf(out, desc, Version)
+	_, _ = fmt.Fprintf(out, desc, Version)
 	flag.PrintDefaults()
 }
 

@@ -22,9 +22,8 @@ type RootConfig struct {
 
 // AppConfig App配置，包括App名称和自定义配置
 type AppConfig struct {
-	Name    string   `hcl:"name,optional" json:"name,omitempty"`
-	Version string   `hcl:"version,optional" json:"version,omitempty"`
-	Remain  hcl.Body `hcl:",remain"`
+	Name    string `hcl:"name,optional" json:"name,omitempty"`
+	Version string `hcl:"version,optional" json:"version,omitempty"`
 }
 
 // LogConfig 日志配置，指定文件夹或URL文件
@@ -53,7 +52,7 @@ func LoadConfigFile(options any) (*RootConfig, error) {
 }
 
 // ReadConfigFile 读取配置文件
-func ReadConfigFile(cfgFile string, verbose bool, options any) (*RootConfig, error) {
+func ReadConfigFile(cfgFile string, verbose bool, others any) (*RootConfig, error) {
 	var err error
 	if theSettings == nil {
 		theSettings = new(RootConfig)
@@ -62,8 +61,8 @@ func ReadConfigFile(cfgFile string, verbose bool, options any) (*RootConfig, err
 		}
 		err = hclsimple.DecodeFile(cfgFile, nil, theSettings)
 	}
-	if err == nil && options != nil {
-		_ = gohcl.DecodeBody(theSettings.App.Remain, nil, options)
+	if err == nil && others != nil {
+		_ = gohcl.DecodeBody(theSettings.Remain, nil, others)
 	}
 	return theSettings, err
 }
