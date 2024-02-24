@@ -43,6 +43,7 @@ func PrepareFlags() {
 	flag.StringVar(&cfgFile, "cf", "settings.hcl", "配置文件位置")
 	// 和urfave/cli的version参数冲突，需要在App中设置HideVersion
 	flag.BoolVar(&verbose, "vv", false, "详细输出")
+	flag.Parse()
 }
 
 // SetupConfig 根据不同场景初始化
