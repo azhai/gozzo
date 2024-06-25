@@ -1,36 +1,46 @@
+SINGLETON =
 COMMANDS = rew
+
 
 ifndef GOAMD64
 	GOAMD64 = v2
 endif
+
 GOOS = $(shell uname -s | tr [A-Z] [a-z])
 ifeq ($(GOOS), darwin)
 	GOBIN = /usr/local/go/bin/go
 	UPXBIN = /usr/local/bin/upx
 else
-	GOBIN = /usr/bin/go
+	GOBIN = /usr/local/bin/go
 	UPXBIN = /usr/bin/upx
 endif
+
 RELEASE = -s -w
 GOARGS = GOOS=$(GOOS) GOARCH=amd64 GOAMD64=$(GOAMD64) CGO_ENABLED=1
 GOBUILD = $(GOARGS) $(GOBIN) build -ldflags="$(RELEASE)"
 
 
-.PHONY: all build clean upx $(COMMANDS)
+.PHONY: all build clean upx upxx $(SINGLETON) $(COMMANDS)
 
 all: clean build
 
+$(SINGLETON):
+	@echo "Compile $(SINGLETON) ..."
+	$(GOBUILD) -o $(SINGLETON) *.go
+
 $(COMMANDS):
 	@echo "Compile $@ ..."
-	$(GOBUILD) -o ./bin/$@ ./cmd/$@
+	$(GOBUILD) -o $@ ./cmd/$@
 
-build: $(COMMANDS)
+build: $(SINGLETON) $(COMMANDS)
 	@echo "Build success."
 
 clean:
-	#$(GOBIN) clean
-	rm -f ./bin/*
-	@echo "Clean all."
+	rm -f $(SINGLETON) $(COMMANDS)
+	@echo "Remove old files."
 
 upx: clean build
-	$(UPXBIN) ./bin/*
+	$(UPXBIN) $(SINGLETON) $(COMMANDS)
+
+upxx: clean build
+	$(UPXBIN) --ultra-brute $(SINGLETON) $(COMMANDS)
