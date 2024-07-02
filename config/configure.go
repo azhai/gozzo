@@ -38,7 +38,7 @@ func SetupLog() {
 	cfg := GetLogSettings()
 	if cfg.LogFile != "" {
 		logger = logging.NewLoggerURL(cfg.LogLevel, cfg.LogFile)
-	} else if cfg.LogDir == "" {
+	} else if cfg.LogDir != "" {
 		logger = logging.NewLogger(cfg.LogDir)
 	} else {
 		logger = zap.NewNop().Sugar()

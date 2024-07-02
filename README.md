@@ -94,7 +94,7 @@ Compile rew ...
 GOOS=darwin GOARCH=amd64 CGO_ENABLED=1 /usr/local/go/bin/go build -ldflags="-s -w" -o ./bin/rew ./cmd/rew
 Build success.
 
-Version: v1.4.0
+Version: v1.4.2
 Usage: rew [flags] [dir ...]
   -v    display more information
 ```

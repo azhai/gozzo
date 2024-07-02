@@ -57,7 +57,7 @@ func DefaultConfig() *LogConfig {
 			ErrorOutputPaths: []string{"stderr"}, // zap内部错误输出
 		},
 		MinLevel:   "debug",
-		LevelCase:  "",
+		LevelCase:  "cap",
 		TimeFormat: "2006-01-02 15:04:05",
 		Outputs: []Output{
 			{Start: "debug", Stop: "info", OutPaths: []string{"access.log"}},
