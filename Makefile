@@ -1,5 +1,5 @@
 SINGLETON =
-COMMANDS = rew
+COMMANDS  = rew
 
 
 ifndef GOAMD64
@@ -15,32 +15,33 @@ else
 	UPXBIN = /usr/bin/upx
 endif
 
-RELEASE = -s -w
-GOARGS = GOOS=$(GOOS) GOARCH=amd64 GOAMD64=$(GOAMD64) CGO_ENABLED=1
-GOBUILD = $(GOARGS) $(GOBIN) build -ldflags="$(RELEASE)"
+RELEASE  = -s -w
+GOARGS   = GOOS=$(GOOS) GOARCH=amd64 GOAMD64=$(GOAMD64) CGO_ENABLED=1
+GOBUILD  = $(GOARGS) $(GOBIN) build -ldflags="$(RELEASE)"
+BINFILES = $(SINGLETON) $(COMMANDS)
 
 
-.PHONY: all build clean upx upxx $(SINGLETON) $(COMMANDS)
+.PHONY: all build clean upx upxx $(BINFILES)
 
 all: clean build
 
 $(SINGLETON):
-	@echo "Compile $(SINGLETON) ..."
-	$(GOBUILD) -o $(SINGLETON) *.go
+	@echo "Compile $@ ..."
+	$(GOBUILD) -o ./bin/$@ *.go
 
 $(COMMANDS):
 	@echo "Compile $@ ..."
-	$(GOBUILD) -o $@ ./cmd/$@
+	$(GOBUILD) -o ./bin/$@ ./cmd/$@
 
-build: $(SINGLETON) $(COMMANDS)
+build: $(BINFILES)
 	@echo "Build success."
 
 clean:
-	rm -f $(SINGLETON) $(COMMANDS)
+	rm -f $(BINFILES:%=./bin/%)
 	@echo "Remove old files."
 
 upx: clean build
-	$(UPXBIN) $(SINGLETON) $(COMMANDS)
+	$(UPXBIN) $(BINFILES:%=./bin/%)
 
 upxx: clean build
-	$(UPXBIN) --ultra-brute $(SINGLETON) $(COMMANDS)
+	$(UPXBIN) --ultra-brute $(BINFILES:%=./bin/%)

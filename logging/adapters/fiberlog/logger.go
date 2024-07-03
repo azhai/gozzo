@@ -21,6 +21,13 @@ func NewLogger(filename string) *FiberLogger {
 	return WrapLogger(l)
 }
 
+// SetLogger 创建并设置日志
+func SetLogger(filename string) *FiberLogger {
+	l := NewLogger(filename)
+	log.SetLogger(l)
+	return l
+}
+
 // WrapLogger 封装日志
 func WrapLogger(l *zap.SugaredLogger) *FiberLogger {
 	lvl := log.LevelInfo

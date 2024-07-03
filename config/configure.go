@@ -33,6 +33,7 @@ type LogConfig struct {
 	LogDir   string `hcl:"log_dir,optional" json:"log_dir,omitempty"`
 }
 
+// SetupLog 根据配置初始化日志单例
 func SetupLog() {
 	var logger *zap.SugaredLogger
 	cfg := GetLogSettings()
