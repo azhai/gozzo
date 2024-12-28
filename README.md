@@ -87,11 +87,11 @@ func main() {
 ```
 ➜ make && ./bin/rew -h
 
-#/usr/local/go/bin/go clean
+#go clean
 rm -f ./bin/*
 Clean all.
 Compile rew ...
-GOOS=darwin GOARCH=amd64 CGO_ENABLED=1 /usr/local/go/bin/go build -ldflags="-s -w" -o ./bin/rew ./cmd/rew
+GOAMD64=v2 CGO_ENABLED=1 go build -ldflags="-s -w" -o ./bin/rew ./cmd/rew
 Build success.
 
 Version: v1.4.2

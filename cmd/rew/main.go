@@ -9,7 +9,7 @@ import (
 	"github.com/azhai/gozzo/rewrite"
 )
 
-const Version = "1.4.2"
+const Version = "1.4.4"
 
 var verbose bool
 
