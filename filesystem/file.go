@@ -24,9 +24,9 @@ type FileHandler struct {
 
 // File 获取文件信息
 func File(path string) *FileHandler {
-	fh := &FileHandler{path: path}
-	_ = fh.Stat()
-	return fh
+	handler := &FileHandler{path: path}
+	_ = handler.Stat()
+	return handler
 }
 
 // Stat 查看文件信息
