@@ -38,6 +38,20 @@ type RootConfig struct {
 	Remain hcl.Body   `hcl:",remain"`
 }
 
+// AppConfig App配置，包括App名称和自定义配置
+type AppConfig struct {
+	Name    string   `hcl:"name,optional" json:"name,omitempty"`
+	Version string   `hcl:"version,optional" json:"version,omitempty"`
+	Remain  hcl.Body `hcl:",remain"`
+}
+
+// LogConfig 日志配置，指定文件夹或URL文件
+type LogConfig struct {
+	LogLevel string `hcl:"log_level,optional" json:"log_level,omitempty"`
+	LogFile  string `hcl:"log_file,optional" json:"log_file,omitempty"`
+	LogDir   string `hcl:"log_dir,optional" json:"log_dir,omitempty"`
+}
+
 // ReadConfigFile 读取配置文件
 func ReadConfigFile(file string, remain any) (*RootConfig, error) {
 	root := &RootConfig{file: file, parsed: false}
@@ -70,17 +84,13 @@ func (c *RootConfig) ParseRemain(remain any) error {
 	return filterError(err)
 }
 
-// AppConfig App配置，包括App名称和自定义配置
-type AppConfig struct {
-	Name    string `hcl:"name,optional" json:"name,omitempty"`
-	Version string `hcl:"version,optional" json:"version,omitempty"`
-}
-
-// LogConfig 日志配置，指定文件夹或URL文件
-type LogConfig struct {
-	LogLevel string `hcl:"log_level,optional" json:"log_level,omitempty"`
-	LogFile  string `hcl:"log_file,optional" json:"log_file,omitempty"`
-	LogDir   string `hcl:"log_dir,optional" json:"log_dir,omitempty"`
+// ParseAppRemain 解析剩下的配置
+func (c *RootConfig) ParseAppRemain(remain any) error {
+	if remain == nil {
+		return nil
+	}
+	err := gohcl.DecodeBody(c.App.Remain, nil, remain)
+	return filterError(err)
 }
 
 // SetupLog 根据配置初始化日志单例
